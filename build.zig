@@ -1,17 +1,5 @@
 const std = @import("std");
 
-fn normalizePrefix(prefix: []const u8) []const u8 {
-    return std.mem.trim(u8, prefix, "/");
-}
-
-fn stagedPath(b: *std.Build, destdir: []const u8, prefix: []const u8, leaf: []const u8) []const u8 {
-    const normalized_prefix = normalizePrefix(prefix);
-    if (normalized_prefix.len == 0) {
-        return std.fs.path.join(b.allocator, &.{ destdir, leaf }) catch @panic("OOM");
-    }
-    return std.fs.path.join(b.allocator, &.{ destdir, normalized_prefix, leaf }) catch @panic("OOM");
-}
-
 pub fn build(b: *std.Build) void {
     _ = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -20,7 +8,6 @@ pub fn build(b: *std.Build) void {
     const ninja = b.option([]const u8, "ninja", "Path to the ninja executable") orelse "ninja";
     const build_dir = b.option([]const u8, "build-dir", "Meson build directory") orelse "build-zig";
     const prefix = b.option([]const u8, "prefix", "Install prefix") orelse "/usr/local";
-    const destdir = b.option([]const u8, "destdir", "Meson DESTDIR staging directory") orelse b.install_prefix;
     const reconfigure = b.option(bool, "reconfigure", "Pass --reconfigure to meson setup") orelse false;
     const default_library = b.option([]const u8, "default-library", "Meson default_library (static/shared/both)") orelse "static";
 
@@ -71,43 +58,13 @@ pub fn build(b: *std.Build) void {
     });
     compile.step.dependOn(&configure.step);
 
-    const install = b.addSystemCommand(&.{
-        meson,
-        "install",
-        "-C",
-        build_dir,
-    });
-    install.step.dependOn(&compile.step);
-
     const configure_step = b.step("configure", "Configure DPDK with meson using zig toolchain");
     configure_step.dependOn(&configure.step);
 
     const compile_step = b.step("compile", "Compile DPDK");
     compile_step.dependOn(&compile.step);
 
-    b.getInstallStep().dependOn(&install.step);
-
     b.default_step.dependOn(&compile.step);
 
-    const print_paths = b.addSystemCommand(&.{
-        "sh",
-        "-c",
-        "printf 'DPDK staged under: %s%s\nheaders: %s%sinclude\nlibraries: %s%slib\n' \"$DESTDIR\" \"$PREFIX\" \"$DESTDIR\" \"$PREFIX/\" \"$DESTDIR\" \"$PREFIX/\"",
-    });
-    print_paths.setEnvironmentVariable("DESTDIR", destdir);
-    print_paths.setEnvironmentVariable("PREFIX", prefix);
-    print_paths.step.dependOn(&install.step);
-
-    b.getInstallStep().dependOn(&print_paths.step);
-
-    const include_dir = stagedPath(b, destdir, prefix, "include");
-    const lib_dir = stagedPath(b, destdir, prefix, "lib");
-    const dpdk_options = b.addOptions();
-    dpdk_options.addOption([]const u8, "include_dir", include_dir);
-    dpdk_options.addOption([]const u8, "lib_dir", lib_dir);
-
-    const dpdk_module = b.addModule("dpdk", .{ .root_source_file = b.path("zig/dpdk.zig") });
-    dpdk_module.addOptions("dpdk_build_options", dpdk_options);
-
-    b.default_step.dependOn(&print_paths.step);
+    _ = b.addModule("dpdk", .{ .root_source_file = b.path("zig/dpdk.zig") });
 }
