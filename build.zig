@@ -10,6 +10,8 @@ pub fn build(b: *std.Build) void {
     const prefix = b.option([]const u8, "prefix", "Install prefix") orelse "/usr/local";
     const reconfigure = b.option(bool, "reconfigure", "Pass --reconfigure to meson setup") orelse false;
     const default_library = b.option([]const u8, "default-library", "Meson default_library (static/shared/both)") orelse "static";
+    const sudo = b.option([]const u8, "sudo", "Path to sudo executable") orelse "sudo";
+    const uninstall_with_sudo = b.option(bool, "uninstall-with-sudo", "Run uninstall target through sudo") orelse true;
 
     if (!std.mem.eql(u8, default_library, "static") and
         !std.mem.eql(u8, default_library, "shared") and
@@ -65,12 +67,21 @@ pub fn build(b: *std.Build) void {
     });
     install.step.dependOn(&compile.step);
 
-    const uninstall = b.addSystemCommand(&.{
-        ninja,
-        "-C",
-        build_dir,
-        "uninstall",
-    });
+    const uninstall = if (uninstall_with_sudo)
+        b.addSystemCommand(&.{
+            sudo,
+            ninja,
+            "-C",
+            build_dir,
+            "uninstall",
+        })
+    else
+        b.addSystemCommand(&.{
+            ninja,
+            "-C",
+            build_dir,
+            "uninstall",
+        });
     uninstall.step.dependOn(&configure.step);
 
     const configure_step = b.step("configure", "Configure DPDK with meson using zig toolchain");
@@ -79,7 +90,8 @@ pub fn build(b: *std.Build) void {
     const compile_step = b.step("compile", "Compile DPDK");
     compile_step.dependOn(&compile.step);
 
-    b.getUninstallStep().dependOn(&uninstall.step);
+    const meson_uninstall_step = b.step("meson-uninstall", "Uninstall DPDK from prefix via ninja uninstall (optionally sudo)");
+    meson_uninstall_step.dependOn(&uninstall.step);
 
     b.getInstallStep().dependOn(&install.step);
 
