@@ -332,11 +332,16 @@ foreach subpath:subdirs
         else
             link_mode = 'gnu'
         endif
+        version_map_inputs = sources + sources_avx2
+        if arch_subdir == 'x86' and sources_avx512.length() > 0 and cc_has_avx512
+            version_map_inputs += sources_avx512
+        endif
+
         version_map = custom_target(lib_name + '_map',
                 command: [gen_version_map, '--linker', link_mode,
                           '--abi-version', abi_version_file, '--output', '@OUTPUT@',
                           '--source', '@INPUT@'],
-                input: sources + sources_avx2 + sources_avx512,
+                input: version_map_inputs,
                 output: '_'.join([class, name, 'exports.map']))
         lk_deps = [version_map]
 
