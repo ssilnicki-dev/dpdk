@@ -35,6 +35,8 @@ pub fn build(b: *std.Build) void {
     configure.setEnvironmentVariable("NINJA", ninja);
     configure.setEnvironmentVariable("CC", "zig cc");
     configure.setEnvironmentVariable("CXX", "zig c++");
+    configure.setEnvironmentVariable("CFLAGS", "-fno-sanitize=undefined");
+    configure.setEnvironmentVariable("CXXFLAGS", "-fno-sanitize=undefined");
     configure.setEnvironmentVariable("AR", "zig ar");
     configure.setEnvironmentVariable("RANLIB", "zig ranlib");
 
