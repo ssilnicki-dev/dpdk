@@ -18,6 +18,8 @@ option('enable_docs', type: 'boolean', value: false, description:
        'build documentation')
 option('enable_apps', type: 'string', value: '', description:
        'Comma-separated list of apps to build. If unspecified, build all apps.')
+option('enable_kmods', type: 'boolean', value: true, description:
+       'Enable building of kernel modules.')
 option('enable_deprecated_libs', type: 'string', value: '', description:
        'Comma-separated list of deprecated libraries to explicitly enable.')
 option('enable_drivers', type: 'string', value: '', description:
@@ -32,6 +34,12 @@ option('ibverbs_link', type: 'combo', choices : ['static', 'shared', 'dlopen'], 
        'Linkage method (static/shared/dlopen) for NVIDIA PMDs with ibverbs dependencies.')
 option('include_subdir_arch', type: 'string', value: '', description:
        'subdirectory where to install arch-dependent headers')
+option('install_examples', type: 'boolean', value: true, description:
+       'Install examples')
+option('install_usertools', type: 'boolean', value: true, description:
+       'Install usertools')
+option('install_buildtools', type: 'boolean', value: true, description:
+       'Install buildtools')
 option('kernel_dir', type: 'string', value: '', description:
        'Path to the kernel for building kernel modules. Headers must be in $kernel_dir or $kernel_dir/build. Modules will be installed in /lib/modules.')
 option('machine', type: 'string', value: 'auto', description:

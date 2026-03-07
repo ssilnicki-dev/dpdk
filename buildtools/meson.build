@@ -35,10 +35,12 @@ min_ver = run_command(get_min_meson_version_cmd, check: true, capture: true)
 message('Minimum Meson required version is ' + min_ver.stdout())
 
 # install any build tools that end-users might want also
+if get_option('install_buildtools')
 install_data([
             'dpdk-cmdline-gen.py',
         ],
         install_dir: 'bin')
+endif
 
 # select library and object file format
 pmdinfo = py3 + files('gen-pmdinfo-cfile.py')

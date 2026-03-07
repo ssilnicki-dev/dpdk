@@ -93,7 +93,9 @@ subdir('lib')
 subdir('drivers')
 
 # build binaries and installable tools
-subdir('usertools')
+if get_option('install_usertools')
+    subdir('usertools')
+endif
 subdir('app')
 
 # build docs
@@ -102,12 +104,16 @@ subdir('doc')
 # build any examples explicitly requested - useful for developers - and
 # install any example code into the appropriate install path
 subdir('examples')
+if get_option('install_examples')
 install_subdir('examples',
         install_dir: get_option('datadir') + '/dpdk',
         exclude_files: ex_file_excludes)
+endif
 
 # build kernel modules
-subdir('kernel')
+if get_option('enable_kmods')
+    subdir('kernel')
+endif
 
 # check header includes if requested
 if get_option('check_includes')
@@ -130,7 +136,9 @@ configure_file(output: build_cfg,
             get_option('include_subdir_arch')))
 
 # build pkg-config files for dpdk
-subdir('buildtools/pkg-config')
+if get_option('install_buildtools')
+    subdir('buildtools/pkg-config')
+endif
 
 if meson.is_subproject()
     subdir('buildtools/subproject')
