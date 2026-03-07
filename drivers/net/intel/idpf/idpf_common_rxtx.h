@@ -230,8 +230,7 @@ __rte_internal
 int idpf_qc_singleq_rx_vec_setup(struct idpf_rx_queue *rxq);
 __rte_internal
 int idpf_qc_splitq_rx_vec_setup(struct idpf_rx_queue *rxq);
-__rte_internal
-int idpf_qc_tx_vec_avx512_setup(struct ci_tx_queue *txq);
+#ifdef CC_AVX512_SUPPORT
 __rte_internal
 int idpf_qc_tx_vec_avx512_setup(struct ci_tx_queue *txq);
 __rte_internal
@@ -248,6 +247,7 @@ uint16_t idpf_dp_singleq_xmit_pkts_avx512(void *tx_queue,
 __rte_internal
 uint16_t idpf_dp_splitq_xmit_pkts_avx512(void *tx_queue, struct rte_mbuf **tx_pkts,
 					 uint16_t nb_pkts);
+#endif
 __rte_internal
 uint16_t idpf_dp_singleq_recv_scatter_pkts(void *rx_queue, struct rte_mbuf **rx_pkts,
 			  uint16_t nb_pkts);
