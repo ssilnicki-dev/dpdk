@@ -6,7 +6,9 @@ pub fn build(b: *std.Build) void {
 
     const meson = b.option([]const u8, "meson", "Path to the meson executable") orelse "meson";
     const ninja = b.option([]const u8, "ninja", "Path to the ninja executable") orelse "ninja";
-    const build_dir = b.option([]const u8, "build-dir", "Meson build directory") orelse "build-zig";
+    const default_build_dir = b.pathFromRoot("build-zig");
+    const build_dir = b.option([]const u8, "build-dir", "Meson build directory") orelse default_build_dir;
+    const source_dir = b.pathFromRoot(".");
     const prefix = b.option([]const u8, "prefix", "Install prefix") orelse "/usr/local";
     const reconfigure = b.option(bool, "reconfigure", "Pass --reconfigure to meson setup") orelse false;
     const default_library = b.option([]const u8, "default-library", "Meson default_library (static/shared/both)") orelse "static";
@@ -29,7 +31,7 @@ pub fn build(b: *std.Build) void {
         meson,
         "setup",
         build_dir,
-        ".",
+        source_dir,
         "--prefix",
         prefix,
         "--backend",
