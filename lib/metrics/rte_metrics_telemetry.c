@@ -312,6 +312,17 @@ rte_metrics_tel_get_ports_stats_json(struct telemetry_encode_param *ep,
 	return 0;
 }
 
+RTE_EXPORT_EXPERIMENTAL_SYMBOL(rte_metrics_tel_get_global_stats, 20.05)
+int32_t
+rte_metrics_tel_get_global_stats(struct telemetry_encode_param *ep)
+{
+	if (ep == NULL)
+		return -EINVAL;
+
+	ep->type = GLOBAL_STATS;
+	return 0;
+}
+
 RTE_EXPORT_EXPERIMENTAL_SYMBOL(rte_metrics_tel_get_port_stats_ids, 20.05)
 int32_t
 rte_metrics_tel_get_port_stats_ids(struct telemetry_encode_param *ep)
