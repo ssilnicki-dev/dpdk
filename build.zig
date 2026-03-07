@@ -28,12 +28,11 @@ pub fn build(b: *std.Build) void {
         "ninja",
         "--buildtype",
         buildtype,
-        "--ninja",
-        ninja,
     });
     if (reconfigure) {
         configure.addArg("--reconfigure");
     }
+    configure.setEnvironmentVariable("NINJA", ninja);
     configure.setEnvironmentVariable("CC", "zig cc");
     configure.setEnvironmentVariable("CXX", "zig c++");
     configure.setEnvironmentVariable("AR", "zig ar");
