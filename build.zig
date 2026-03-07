@@ -73,5 +73,5 @@ pub fn build(b: *std.Build) void {
 
     b.getInstallStep().dependOn(&install.step);
 
-    b.default_step.dependOn(&compile.step);
+    b.default_step = compile_step;
 }
