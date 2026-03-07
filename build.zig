@@ -66,11 +66,9 @@ pub fn build(b: *std.Build) void {
     install.step.dependOn(&compile.step);
 
     const uninstall = b.addSystemCommand(&.{
-        meson,
-        "compile",
+        ninja,
         "-C",
         build_dir,
-        "--target",
         "uninstall",
     });
     uninstall.step.dependOn(&configure.step);
