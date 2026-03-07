@@ -9,6 +9,13 @@ pub fn build(b: *std.Build) void {
     const build_dir = b.option([]const u8, "build-dir", "Meson build directory") orelse "build-zig";
     const prefix = b.option([]const u8, "prefix", "Install prefix") orelse "/usr/local";
     const reconfigure = b.option(bool, "reconfigure", "Pass --reconfigure to meson setup") orelse false;
+    const default_library = b.option([]const u8, "default-library", "Meson default_library (static/shared/both)") orelse "static";
+
+    if (!std.mem.eql(u8, default_library, "static") and
+        !std.mem.eql(u8, default_library, "shared") and
+        !std.mem.eql(u8, default_library, "both")) {
+        std.debug.panic("Invalid default-library '{s}', expected static/shared/both", .{default_library});
+    }
 
     const buildtype = switch (optimize) {
         .Debug => "debug",
@@ -28,6 +35,8 @@ pub fn build(b: *std.Build) void {
         "ninja",
         "--buildtype",
         buildtype,
+        "--default-library",
+        default_library,
     });
     if (reconfigure) {
         configure.addArg("--reconfigure");
