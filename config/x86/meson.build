@@ -73,7 +73,8 @@ if not cc.has_argument(avx512_march_flag)
 endif
 # workaround for older compilers, e.g. GCC 8.5 on RHEL 8.
 # if march flag overriding doesn't work, explicitly add flags for AVX512.
-if cc.get_define('__AVX512F__', args: machine_args + avx512_march_flag) == ''
+if (not cc.has_multi_arguments(avx512_march_flag) or
+        cc.get_define('__AVX512F__', args: machine_args + avx512_march_flag) == '')
     avx512_march_flag = ['-mavx512f', '-mavx512bw', '-mavx512cd', '-mavx512dq', '-mavx512vl']
 endif
 cc_avx512_flags = []
