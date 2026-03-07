@@ -254,12 +254,27 @@ if fdt_dep.found() and cc.has_header('fdt.h') and cc.links(min_c_code, dependenc
     dpdk_extra_ldflags += '-lfdt'
 endif
 
-libexecinfo = cc.find_library('execinfo', required: false)
-if libexecinfo.found() and cc.links(min_c_code, dependencies: libexecinfo)
-    add_project_link_arguments('-lexecinfo', language: 'c')
-    dpdk_extra_ldflags += '-lexecinfo'
+can_use_backtrace = false
+if cc.has_header('execinfo.h')
+    backtrace_test_code = '''#include <execinfo.h>
+int main(void) {
+    void *func[1];
+    return backtrace(func, 1) == 0;
+}'''
+
+    if cc.links(backtrace_test_code)
+        can_use_backtrace = true
+    else
+        libexecinfo = cc.find_library('execinfo', required: false)
+        if libexecinfo.found() and cc.links(backtrace_test_code, dependencies: libexecinfo)
+            add_project_link_arguments('-lexecinfo', language: 'c')
+            dpdk_extra_ldflags += '-lexecinfo'
+            can_use_backtrace = true
+        endif
+    endif
 endif
-dpdk_conf.set('RTE_BACKTRACE', cc.has_header('execinfo.h') or is_windows)
+
+dpdk_conf.set('RTE_BACKTRACE', can_use_backtrace or is_windows)
 
 libarchive = dependency('libarchive', required: false, method: 'pkg-config')
 if libarchive.found()
