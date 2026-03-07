@@ -81,8 +81,7 @@ pub fn build(b: *std.Build) void {
     const compile_step = b.step("compile", "Compile DPDK");
     compile_step.dependOn(&compile.step);
 
-    const uninstall_step = b.step("uninstall", "Uninstall DPDK from the configured prefix");
-    uninstall_step.dependOn(&uninstall.step);
+    b.getUninstallStep().dependOn(&uninstall.step);
 
     b.getInstallStep().dependOn(&install.step);
 
