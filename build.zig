@@ -61,8 +61,7 @@ pub fn build(b: *std.Build) void {
     const compile_step = b.step("compile", "Compile DPDK");
     compile_step.dependOn(&compile.step);
 
-    const install_step = b.step("install", "Install DPDK");
-    install_step.dependOn(&install.step);
+    b.getInstallStep().dependOn(&install.step);
 
     b.default_step.dependOn(&compile.step);
 }
