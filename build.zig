@@ -65,11 +65,24 @@ pub fn build(b: *std.Build) void {
     });
     install.step.dependOn(&compile.step);
 
+    const uninstall = b.addSystemCommand(&.{
+        meson,
+        "compile",
+        "-C",
+        build_dir,
+        "--target",
+        "uninstall",
+    });
+    uninstall.step.dependOn(&configure.step);
+
     const configure_step = b.step("configure", "Configure DPDK with meson using zig toolchain");
     configure_step.dependOn(&configure.step);
 
     const compile_step = b.step("compile", "Compile DPDK");
     compile_step.dependOn(&compile.step);
+
+    const uninstall_step = b.step("uninstall", "Uninstall DPDK from the configured prefix");
+    uninstall_step.dependOn(&uninstall.step);
 
     b.getInstallStep().dependOn(&install.step);
 
